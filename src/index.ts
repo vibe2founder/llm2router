@@ -20,3 +20,6 @@ export type {
 export { LLM_DEFAULTS } from './constants/llm-defaults.js';
 export type { LLMDefaults } from './constants/llm-defaults.js';
 export { runLLM } from './adapters/run-llm.js';
+
+export { runToolCallingAgent, createSecureFileTools } from './agent/tool-agent.js';
+export type { AgentTool, ToolCallingAgentOptions, SecureFileToolsConfig } from './agent/tool-agent.js';
