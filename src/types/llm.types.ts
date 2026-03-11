@@ -24,6 +24,7 @@ export type LLMProvider =
   | 'anthropic' 
   | 'gemini' 
   | 'openai' 
+  | 'ollama'
   | 'deepseek' 
   | 'mistral' 
   | 'perplexity';
@@ -66,7 +67,7 @@ export interface UnifiedLLMParams {
   seed?: number;
 
   /** Qual provedor usar. */
-  provider?: LLMProvider;
+  provider?: LLMProviderSelection;
 
   /** Chave de API. */
   apiKey?: ApiKey | string;
@@ -90,3 +91,7 @@ export interface UnifiedLLMTextResult {
 export interface UnifiedLLMJSONResult<T = any> extends UnifiedLLMTextResult {
   json: T;
 }
+
+
+/** Seletor de provedor incluindo modo automático. */
+export type LLMProviderSelection = LLMProvider | 'auto';
