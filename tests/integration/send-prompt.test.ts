@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, afterEach, vi } from 'vitest';
 import { setupServer } from 'msw/node';
 import { handlers } from '../mocks/handlers.js';
 import { sendPrompt } from '../../src/index.js';
@@ -68,6 +68,30 @@ describe('Integration: sendPrompt (Fulfilling User Scenarios)', () => {
 
     // Then
     expect(result).toBe('Hello from Gemini!');
+  });
+
+
+
+  it('Scenario: User uses provider auto and falls back to Ollama when offline', async () => {
+    const originalFetch = global.fetch;
+    const mockedFetch = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      if (typeof input === 'string' && input.includes('google.com/generate_204')) {
+        return Promise.reject(new Error('offline'));
+      }
+      return originalFetch(input as any, init);
+    });
+
+    global.fetch = mockedFetch as typeof fetch;
+
+    try {
+      const prompt = 'Hello auto';
+      const options = { model: 'llama3.2:latest', provider: 'auto' as const };
+
+      const result = await sendPrompt(prompt, options).getText();
+      expect(result).toBe('Hello from Ollama local!');
+    } finally {
+      global.fetch = originalFetch;
+    }
   });
 
   it.skip('Scenario: User requests streaming response from OpenAI', async () => {

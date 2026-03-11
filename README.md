@@ -1,6 +1,6 @@
 # Polyglot LLM
 
-Interface unificada e **Fluent** para **OpenAI**, Groq, OpenRouter, Claude (Anthropic) e Gemini.
+Interface unificada e **Fluent** para **OpenAI**, Groq, OpenRouter, Claude (Anthropic), Gemini e **Ollama local**.
 
 - [CHANGELOG](./CHANGELOG.md)
 
@@ -51,8 +51,10 @@ const obj = await sendPrompt('Retorne apenas um JSON: { "ok": true }', {
 - `openrouter` (OpenRouter)
 - `anthropic` (Claude)
 - `gemini` (Google Gemini)
+- `ollama` (local em `http://127.0.0.1:11434/v1`)
+- `auto` (seleciona `ollama` quando não há internet, senão `groq`)
 
-API keys: `GROQ_API_KEY`, `OPENROUTER_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY` (ou `apiKey` nas opções).
+API keys: `GROQ_API_KEY`, `OPENROUTER_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `OPENAI_API_KEY` (ou `apiKey` nas opções). Para `ollama`, API key é opcional.
 
 ## Build
 

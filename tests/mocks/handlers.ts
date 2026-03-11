@@ -47,5 +47,17 @@ export const handlers = [
       candidates: [{ content: { parts: [{ text: 'Hello from Gemini!' }] } }],
       usageMetadata: { promptTokenCount: 5, candidatesTokenCount: 10 }
     });
-  })
+  }),
+
+  http.post('http://127.0.0.1:11434/v1/chat/completions', async () => {
+    return HttpResponse.json({
+      choices: [{ message: { content: 'Hello from Ollama local!' } }],
+      usage: { prompt_tokens: 7, completion_tokens: 9, total_tokens: 16 },
+      model: 'llama3.2:latest'
+    });
+  }),
+
+  http.head('https://www.google.com/generate_204', async () => {
+    return new HttpResponse(null, { status: 204 });
+  }),
 ];

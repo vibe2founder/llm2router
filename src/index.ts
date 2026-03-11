@@ -14,6 +14,7 @@ export type {
   LLMMessage,
   LLMMessageRole,
   LLMProvider,
+  LLMProviderSelection,
   UnifiedLLMTextResult,
 } from './types/llm.types.js';
 export { LLM_DEFAULTS } from './constants/llm-defaults.js';
