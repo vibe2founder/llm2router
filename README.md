@@ -56,6 +56,24 @@ const obj = await sendPrompt('Retorne apenas um JSON: { "ok": true }', {
 
 API keys: `GROQ_API_KEY`, `OPENROUTER_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `OPENAI_API_KEY` (ou `apiKey` nas opções). Para `ollama`, API key é opcional.
 
+
+## CI/CD
+
+- **CI (`.github/workflows/ci.yml`)**: executa build e testes automaticamente em todo PR e em pushes para `main/master`.
+- **Release (`.github/workflows/release.yml`)**: publica no npm em tags semânticas (`v*.*.*`) ou via disparo manual (`workflow_dispatch`).
+
+### Como publicar
+
+1. Configure o secret do repositório: `NPM_TOKEN`.
+2. Gere e envie uma tag de versão, por exemplo:
+
+```bash
+git tag v1.0.1
+git push origin v1.0.1
+```
+
+A pipeline de release fará build, validação de pacote (`npm pack --dry-run`) e `npm publish`.
+
 ## Build
 
 ```bash
