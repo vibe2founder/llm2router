@@ -57,6 +57,39 @@ const obj = await sendPrompt('Retorne apenas um JSON: { "ok": true }', {
 API keys: `GROQ_API_KEY`, `OPENROUTER_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `OPENAI_API_KEY` (ou `apiKey` nas opções). Para `ollama`, API key é opcional.
 
 
+
+## Agent com Tool Calling Seguro
+
+Agora a lib inclui um executor de agente com loop de ferramentas e utilitários seguros para arquivos locais:
+
+```ts
+import { createSecureFileTools, runToolCallingAgent } from 'one-llm-4-all';
+
+const tools = createSecureFileTools({
+  rootDir: './workspace-agent',
+  allowWrite: true,
+  maxFileSizeBytes: 128 * 1024,
+});
+
+const resposta = await runToolCallingAgent('Crie um arquivo TODO.md com 3 tarefas.', {
+  model: 'llama-3.1-8b-instant',
+  provider: 'groq',
+  apiKey: process.env.GROQ_API_KEY,
+  tools,
+  maxSteps: 8,
+});
+
+console.log(resposta);
+```
+
+### Proteções de segurança
+
+- Sandbox por `rootDir` (bloqueia path traversal com `..`).
+- Bloqueio por padrões sensíveis (`.env`, `id_rsa`, `.git`, `node_modules`).
+- Controle de escrita com `allowWrite`.
+- Limite de tamanho por arquivo (`maxFileSizeBytes`).
+- Limite de execução do agente com `maxSteps` para evitar loop infinito.
+
 ## CI/CD
 
 - **CI (`.github/workflows/ci.yml`)**: executa build e testes automaticamente em todo PR e em pushes para `main/master`.
