@@ -13,6 +13,7 @@ import type {
   UnifiedLLMTextResult,
   LLMMessage,
   LLMProvider,
+  LLMProviderSelection,
 } from '../types/llm.types.js';
 
 function toMessages(m: UnifiedLLMParams['messages']): LLMMessage[] {
@@ -29,12 +30,39 @@ const ENV_KEYS: Record<LLMProvider, string> = {
   deepseek: "DEEPSEEK_API_KEY",
   mistral: "MISTRAL_API_KEY",
   perplexity: "PERPLEXITY_API_KEY",
+  ollama: "OLLAMA_API_KEY",
 };
 
-function getApiKey(provider: LLMProvider, apiKey?: string): string {
+function getApiKey(provider: LLMProvider, apiKey?: string): string | undefined {
+  if (provider === "ollama") return apiKey ?? process.env.OLLAMA_API_KEY;
+
   const k = apiKey ?? process.env[ENV_KEYS[provider]];
   if (!k) throw new Error(`Missing API key for ${provider}. Set apiKey or ${ENV_KEYS[provider]}.`);
   return k;
+}
+
+async function hasInternetConnection(): Promise<boolean> {
+  try {
+    const ctrl = new AbortController();
+    const timeout = setTimeout(() => ctrl.abort(), 1500);
+    const res = await fetch("https://www.google.com/generate_204", {
+      method: "HEAD",
+      signal: ctrl.signal,
+    });
+    clearTimeout(timeout);
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+async function resolveProvider(provider: LLMProviderSelection): Promise<LLMProvider> {
+  if (provider !== "auto") return provider;
+
+  const online = await hasInternetConnection();
+  if (!online) return "ollama";
+
+  return "groq";
 }
 
 export async function runLLM(
@@ -44,7 +72,8 @@ export async function runLLM(
   UnifiedLLMTextResult & { json?: unknown; stream?: AsyncGenerator<string> }
 > {
   const messages = toMessages(params.messages);
-  const provider = (params.provider ?? "groq") as LLMProvider;
+  const requestedProvider = (params.provider ?? "groq") as LLMProviderSelection;
+  const provider = await resolveProvider(requestedProvider);
   const apiKey = getApiKey(provider, params.apiKey as string);
   const D = LLM_DEFAULTS;
 
@@ -57,6 +86,7 @@ export async function runLLM(
       "deepseek",
       "mistral",
       "perplexity",
+      "ollama",
     ].includes(provider)
   ) {
     const baseURLs: Partial<Record<LLMProvider, string>> = {
@@ -66,6 +96,7 @@ export async function runLLM(
       deepseek: "https://api.deepseek.com",
       mistral: "https://api.mistral.ai/v1",
       perplexity: "https://api.perplexity.ai",
+      ollama: "http://127.0.0.1:11434/v1",
     };
 
     const client = new OpenAIClient({
@@ -113,7 +144,7 @@ export async function runLLM(
   }
 
   if (provider === "anthropic") {
-    const client = new AnthropicClient({ apiKey });
+    const client = new AnthropicClient({ apiKey: apiKey as string });
     const max = params.max_tokens ?? D.max_tokens ?? 1024;
     const sys =
       params.system ??
@@ -174,7 +205,7 @@ export async function runLLM(
   }
 
   if (provider === "gemini") {
-    const client = new GoogleGenAIClient({ apiKey });
+    const client = new GoogleGenAIClient({ apiKey: apiKey as string });
 
     const contents = messages
       .filter((m) => m.role !== "system")

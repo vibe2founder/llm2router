@@ -1,7 +1,7 @@
 import { reqify } from '../reqify/index.js';
 
 export interface OpenAIClientOptions {
-  apiKey: string;
+  apiKey?: string;
   baseURL?: string;
 }
 
@@ -17,7 +17,7 @@ export interface ChatCompletionParams {
 }
 
 export class OpenAIClient {
-  private apiKey: string;
+  private apiKey?: string;
   private baseURL: string;
 
   constructor(options: OpenAIClientOptions) {
@@ -34,9 +34,11 @@ export class OpenAIClient {
       `${this.baseURL}/chat/completions`,
       params,
       {
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-        },
+        headers: this.apiKey
+          ? {
+              'Authorization': `Bearer ${this.apiKey}`,
+            }
+          : undefined,
       }
     );
     return response.data;
@@ -47,9 +49,11 @@ export class OpenAIClient {
       `${this.baseURL}/chat/completions`,
       params,
       {
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-        },
+        headers: this.apiKey
+          ? {
+              'Authorization': `Bearer ${this.apiKey}`,
+            }
+          : undefined,
       }
     );
     return response.stream;

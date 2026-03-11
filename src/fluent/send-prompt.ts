@@ -4,11 +4,11 @@
 
 import { LLM_DEFAULTS } from '../constants/llm-defaults.js';
 import { runLLM } from '../adapters/run-llm.js';
-import type { UnifiedLLMParams, LLMMessage, LLMProvider } from '../types/llm.types.js';
+import type { UnifiedLLMParams, LLMMessage, LLMProviderSelection } from '../types/llm.types.js';
 
 export type SendPromptOptions = Partial<Omit<UnifiedLLMParams, 'messages'>> & {
   model: string;
-  provider?: LLMProvider;
+  provider?: LLMProviderSelection;
   apiKey?: string;
 };
 
